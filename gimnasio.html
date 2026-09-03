@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSO — Control de Gimnasio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14161A;
+  --ink-soft:#22252B;
+  --paper:#F6F5F1;
+  --paper-card:#FFFFFF;
+  --line:#E4E1D8;
+  --lime:#E4102C;
+  --lime-deep:#9E0C1F;
+  --coral:#FF3B30;
+  --teal:#111111;
+  --gold:#8C2A3A;
+  --muted:#77787D;
+  --radius:4px;
+  --font-display:'Bebas Neue', sans-serif;
+  --font-body:'Inter', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--paper);}
+::-webkit-scrollbar-thumb{background:var(--ink);border-radius:10px;border:2px solid var(--paper);}
+::-webkit-scrollbar-thumb:hover{background:var(--lime);}
+body{
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+}
+#appRoot{width:100%;}
+::selection{background:var(--lime);color:var(--ink);}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:220px;
+  background:var(--ink);
+  color:#fff;
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+  box-shadow:4px 0 20px rgba(0,0,0,.12);
+  z-index:5;
+}
+.brand{
+  padding:28px 22px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  position:relative;
+}
+.brand::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:var(--lime);
+}
+.brand-mark{
+  font-family:var(--font-display);
+  font-size:34px;
+  letter-spacing:1px;
+  color:#fff;
+  line-height:1;
+}
+.brand-mark span{color:var(--lime);}
+.brand-sub{
+  font-size:11px;
+  color:rgba(255,255,255,.45);
+  margin-top:4px;
+  letter-spacing:.5px;
+}
+.nav{
+  flex:1;
+  padding:14px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:11px 12px;
+  border-radius:var(--radius);
+  color:rgba(255,255,255,.65);
+  cursor:pointer;
+  font-size:14px;
+  font-weight:500;
+  border:none;
+  background:none;
+  text-align:left;
+  width:100%;
+  transition:background .15s, color .15s;
+}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;opacity:.8;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav-item.active{background:var(--lime);color:var(--ink);font-weight:700;}
+.nav-item.active svg{opacity:1;}
+.nav-foot{
+  padding:16px 22px 20px;
+  border-top:1px solid rgba(255,255,255,.08);
+  font-size:11px;
+  color:rgba(255,255,255,.4);
+}
+.caja-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:20px;
+  margin-top:8px;
+}
+.caja-pill.open{background:rgba(228,16,44,.18);color:var(--lime);}
+.caja-pill.open .dot{animation:pulse-dot 1.6s ease-in-out infinite;}
+.caja-pill.closed{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45);}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.35;}}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+.nav-user{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 0 12px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nav-user .nu-info{overflow:hidden;}
+.nav-user .nu-name{font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-user .nu-role{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.3px;}
+.nav-user button{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:15px;padding:4px;flex-shrink:0;}
+.nav-user button:hover{color:var(--lime);}
+
+/* ---------- LOGIN ---------- */
+.login-screen{
+  position:fixed;inset:0;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;
+}
+.login-card{
+  background:#fff;border-radius:12px;width:100%;max-width:380px;
+  padding:36px 32px 30px;text-align:center;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.5);
+  border-top:4px solid var(--lime);
+}
+.login-brand{font-family:var(--font-display);font-size:38px;letter-spacing:1px;color:var(--ink);}
+.login-brand span{color:var(--lime);}
+.login-sub{font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.login-card .field{text-align:left;}
+.login-error{color:var(--lime);font-size:12.5px;font-weight:600;min-height:16px;margin:2px 0 8px;text-align:left;}
+.login-hint{font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;}
+
+/* ---------- MAIN ---------- */
+.main{flex:1;min-width:0;padding:30px 38px 60px;max-width:1180px;}
+.view{display:none;}
+.view.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+.page-title{font-family:var(--font-display);font-size:40px;letter-spacing:.5px;line-height:1;position:relative;padding-left:17px;}
+.page-title::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:5px;background:var(--lime);border-radius:2px;}
+.page-desc{color:var(--muted);font-size:13.5px;margin-top:6px;max-width:520px;}
+
+.btn{
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:13.5px;
+  padding:11px 20px;
+  border-radius:var(--radius);
+  border:none;
+  cursor:pointer;
+  transition:transform .12s, box-shadow .15s, background .15s, border-color .15s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:scale(.97) translateY(0);}
+.btn-primary{background:var(--ink);color:#fff;border:1.5px solid transparent;}
+.btn-primary:hover{box-shadow:0 4px 14px rgba(0,0,0,.3);}
+.btn-lime{background:var(--lime);color:#fff;}
+.btn-lime:hover{box-shadow:0 4px 14px rgba(228,16,44,.4);}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+.btn-ghost:hover{border-color:var(--ink);}
+.btn-danger{background:transparent;color:var(--coral);border:1.5px solid rgba(255,59,48,.4);}
+.btn-danger:hover{background:rgba(255,59,48,.08);}
+.btn-sm{padding:7px 13px;font-size:12.5px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ---------- PANEL / CHECK-IN ---------- */
+.checkin-box{
+  background:var(--ink);
+  border-radius:8px;
+  padding:26px 28px;
+  margin-bottom:24px;
+  box-shadow:0 14px 30px -14px rgba(0,0,0,.35);
+  border-top:3px solid var(--lime);
+}
+.checkin-box label{color:rgba(255,255,255,.5);font-size:12px;font-weight:600;letter-spacing:.4px;}
+.checkin-row{display:flex;gap:10px;margin-top:10px;}
+.checkin-row input{
+  flex:1;
+  padding:14px 16px;
+  border-radius:6px;
+  border:none;
+  font-size:16px;
+  font-family:var(--font-body);
+  background:#fff;
+  transition:box-shadow .15s;
+}
+.checkin-row input:focus{outline:2.5px solid var(--lime);}
+
+.status-card{
+  margin-top:18px;
+  background:var(--paper-card);
+  border-radius:8px;
+  padding:22px;
+  display:none;
+  box-shadow:0 1px 2px rgba(0,0,0,.03), 0 16px 32px -16px rgba(0,0,0,.12);
+  border:1px solid var(--line);
+}
+.status-card.show{display:block;}
+.status-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
+.status-name{font-family:var(--font-display);font-size:30px;letter-spacing:.3px;}
+.status-meta{color:var(--muted);font-size:13px;margin-top:2px;}
+.badge{
+  font-size:12.5px;
+  font-weight:800;
+  padding:7px 14px;
+  border-radius:20px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+.badge-ok{background:rgba(0,0,0,.06);color:var(--teal);}
+.badge-warn{background:rgba(140,42,58,.13);color:var(--gold);}
+.badge-bad{background:rgba(228,16,44,.12);color:var(--lime);}
+.badge-none{background:rgba(138,141,147,.13);color:var(--muted);}
+.status-detail{display:flex;gap:28px;margin-top:18px;flex-wrap:wrap;}
+.status-stat{}
+.status-stat .n{font-family:var(--font-display);font-size:26px;line-height:1;}
+.status-stat .l{font-size:11.5px;color:var(--muted);margin-top:3px;letter-spacing:.3px;}
+.status-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;margin-top:26px;}
+@media(max-width:820px){.grid-2{grid-template-columns:1fr;}}
+
+.shortcut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin:22px 0;}
+.shortcut-tile{
+  background:var(--paper-card);border:1px solid var(--line);border-radius:10px;
+  padding:16px 15px;cursor:pointer;text-align:left;font-family:var(--font-body);
+  transition:transform .12s, box-shadow .15s, border-color .15s;
+}
+.shortcut-tile:hover{transform:translateY(-3px);box-shadow:0 14px 26px -14px rgba(0,0,0,.18);border-color:var(--ink);}
+.shortcut-tile:active{transform:translateY(-1px) scale(.98);}
+.shortcut-icon{
+  width:36px;height:36px;border-radius:8px;background:var(--ink);color:var(--lime);
+  display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px;
+}
+.shortcut-title{font-weight:700;font-size:13.5px;color:var(--ink);}
+.shortcut-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35;}
+.panel-card{background:var(--paper-card);border-radius:8px;padding:20px 22px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.03), 0 10px 24px -12px rgba(0,0,0,.08);}
+.panel-card h3{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.mini-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;transition:padding-left .15s;}
+.mini-row:hover{padding-left:4px;}
+.mini-row:last-child{border-bottom:none;}
+.mini-name{font-weight:600;}
+.mini-sub{color:var(--muted);font-size:12px;}
+.empty-note{color:var(--muted);font-size:13px;padding:14px 0;text-align:center;}
+
+/* ---------- TABLES ---------- */
+.table-wrap{background:var(--paper-card);border-radius:8px;border:1px solid var(--line);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03), 0 10px 24px -12px rgba(0,0,0,.08);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+th{
+  text-align:left;
+  padding:12px 16px;
+  background:var(--ink);
+  color:rgba(255,255,255,.7);
+  font-weight:600;
+  font-size:11.5px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+}
+td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr.tbl-row{transition:background .12s;}
+tr.tbl-row:hover{background:#FAF4F4;}
+.searchbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.searchbar input, .searchbar select{
+  padding:11px 14px;border-radius:var(--radius);border:1.5px solid var(--line);
+  font-family:var(--font-body);font-size:13.5px;background:#fff;
+  transition:border-color .15s;
+}
+.searchbar input:focus, .searchbar select:focus{outline:none;border-color:var(--ink);}
+.searchbar input{flex:1;min-width:180px;}
+
+/* ---------- VENTAS ---------- */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:14px;}
+.plan-card{
+  background:var(--paper-card);
+  border:2px solid var(--line);
+  border-radius:8px;
+  padding:18px;
+  cursor:pointer;
+  transition:border-color .15s, transform .12s, box-shadow .15s;
+  position:relative;
+}
+.plan-card:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 10px 20px -8px rgba(0,0,0,.15);}
+.plan-card.selected{border-color:var(--lime);background:#FDF1F2;box-shadow:0 10px 20px -8px rgba(228,16,44,.25);}
+.plan-card .tag{
+  position:absolute;top:12px;right:12px;font-size:10px;font-weight:800;
+  background:var(--lime);color:#fff;padding:3px 8px;border-radius:20px;text-transform:uppercase;
+}
+.plan-name{font-weight:700;font-size:15px;margin-bottom:4px;padding-right:50px;}
+.plan-dur{color:var(--muted);font-size:12px;margin-bottom:10px;}
+.plan-price{font-family:var(--font-display);font-size:26px;}
+.plan-price span{font-size:13px;font-family:var(--font-body);color:var(--muted);font-weight:500;}
+
+.venta-box{background:var(--paper-card);border:1px solid var(--line);border-radius:8px;padding:22px;margin-top:24px;box-shadow:0 1px 2px rgba(0,0,0,.03), 0 16px 32px -18px rgba(0,0,0,.12);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.3px;}
+.field input, .field select, .field textarea{
+  width:100%;padding:11px 13px;border-radius:var(--radius);border:1.5px solid var(--line);
+  font-family:var(--font-body);font-size:14px;background:#fff;
+}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--ink);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:600px){.row2,.row3{grid-template-columns:1fr;}}
+
+.pay-methods{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:6px;}
+.pay-method{border:1.5px solid var(--line);border-radius:var(--radius);padding:12px;}
+.pay-method .pm-label{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.pay-method input{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:4px;font-size:13.5px;}
+.total-strip{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--ink);color:#fff;padding:16px 20px;border-radius:8px;margin-top:18px;
+}
+.total-strip .tl{font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.3px;}
+.total-strip .tv{font-family:var(--font-display);font-size:30px;color:var(--lime);}
+.diff-note{font-size:12px;margin-top:8px;font-weight:600;}
+.diff-ok{color:var(--teal);}
+.diff-bad{color:var(--lime);}
+
+/* ---------- CAJA ---------- */
+.caja-hero{
+  background:var(--ink);color:#fff;border-radius:12px;
+  padding:28px 30px 26px;position:relative;overflow:hidden;
+  box-shadow:0 20px 40px -18px rgba(0,0,0,.35);
+  margin-bottom:22px;
+}
+.caja-hero::after{
+  content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;
+  background:radial-gradient(circle, rgba(228,16,44,.25) 0%, rgba(228,16,44,0) 70%);
+}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.hero-label{font-size:11.5px;letter-spacing:.5px;color:rgba(255,255,255,.5);text-transform:uppercase;font-weight:700;}
+.hero-main{display:flex;align-items:flex-end;gap:26px;margin-top:10px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero-figure .hf-num{font-family:var(--font-display);font-size:58px;line-height:1;color:var(--lime);}
+.hero-figure .hf-cur{font-size:14px;color:rgba(255,255,255,.55);margin-left:6px;}
+.hero-figure.secondary .hf-num{font-size:30px;color:#fff;}
+.hero-figure.secondary .hf-label{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:2px;}
+.hero-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;position:relative;z-index:1;}
+.chip{background:rgba(255,255,255,.08);padding:8px 14px;border-radius:20px;font-size:12.5px;color:rgba(255,255,255,.7);}
+.chip b{color:#fff;margin-left:5px;font-weight:700;}
+.chip.strong{background:rgba(228,16,44,.2);color:var(--lime);}
+.chip.strong b{color:var(--lime);}
+
+.caja-summary, .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+@media(max-width:820px){.caja-summary, .stat-cards{grid-template-columns:1fr 1fr;}}
+.sum-card{background:var(--paper-card);border:1px solid var(--line);border-radius:8px;padding:18px;transition:transform .12s, box-shadow .15s;box-shadow:0 1px 2px rgba(0,0,0,.03), 0 10px 22px -14px rgba(0,0,0,.1);}
+.sum-card:hover{transform:translateY(-2px);}
+.sum-card .sl{font-size:11.5px;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;font-weight:700;}
+.sum-card .sv{font-family:var(--font-display);font-size:28px;margin-top:6px;}
+.sum-card.accent{background:var(--ink);border-color:var(--ink);}
+.sum-card.accent .sl{color:rgba(255,255,255,.5);}
+.sum-card.accent .sv{color:var(--lime);}
+
+.closed-box{
+  background:var(--paper-card);border:1px dashed var(--line);border-radius:8px;
+  padding:50px 30px;text-align:center;
+}
+.closed-box h3{font-family:var(--font-display);font-size:26px;margin-bottom:8px;}
+.closed-box p{color:var(--muted);font-size:13.5px;margin-bottom:20px;max-width:360px;margin-left:auto;margin-right:auto;}
+
+/* ---------- MODAL ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);
+  display:none;align-items:flex-start;justify-content:center;
+  padding:40px 20px;overflow-y:auto;z-index:100;
+}
+.overlay.show{display:flex;}
+.modal{
+  background:var(--paper-card);border-radius:10px;
+  width:100%;max-width:520px;padding:28px 28px 24px;
+  animation:modal-in .2s ease;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.4);
+  border-top:3px solid var(--lime);
+}
+@keyframes modal-in{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-head h2{font-family:var(--font-display);font-size:26px;letter-spacing:.3px;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;}
+
+.tabbar{display:flex;gap:4px;margin-bottom:20px;border-bottom:1.5px solid var(--line);}
+.tabbtn{padding:10px 16px;font-size:13px;font-weight:600;background:none;border:none;cursor:pointer;color:var(--muted);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;}
+.tabbtn.active{color:var(--ink);border-color:var(--lime-deep);}
+
+.toast{
+  position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;
+  padding:14px 20px;border-radius:8px;font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;gap:10px;z-index:200;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);
+  transition:opacity .25s, transform .25s; pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast .dot{background:var(--lime);width:8px;height:8px;}
+
+.movtable td, .movtable th{padding:10px 14px;}
+.tag-metodo{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+.tag-efectivo{background:rgba(0,0,0,.06);color:var(--teal);}
+.tag-tarjeta{background:rgba(140,42,58,.13);color:var(--gold);}
+.tag-dolares{background:rgba(228,16,44,.13);color:var(--lime-deep);}
+.tag-egreso{background:var(--lime);color:#fff;}
+
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:5px;}
+.icon-btn:hover{color:var(--ink);}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-dow{font-size:10.5px;color:var(--muted);text-align:center;font-weight:700;padding-bottom:4px;}
+.cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:12px;border-radius:5px;background:var(--paper);color:var(--muted);
+}
+.cal-day.present{background:var(--lime);color:#fff;font-weight:700;}
+.cal-day.empty{visibility:hidden;}
+.cal-day.today{border:1.5px solid var(--ink);}
+</style>
+<!-- Firebase (Analytics) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBh35ikPneZJceyiIHd-DvzzEVBoVOs63A",
+    authDomain: "pulso-844ba.firebaseapp.com",
+    projectId: "pulso-844ba",
+    storageBucket: "pulso-844ba.firebasestorage.app",
+    messagingSenderId: "370350086832",
+    appId: "1:370350086832:web:119e133c261c3080da3975",
+    measurementId: "G-C7W14KBPYL"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  // Analytics solo funciona servido por http(s) — no al abrir el archivo directamente (file://).
+  if(location.protocol.startsWith('http')){
+    const analytics = getAnalytics(firebaseApp);
+    window._pulsoAnalytics = analytics;
+    window._pulsoLogEvent = (name, params) => logEvent(analytics, name, params);
+  }
+</script>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">PULS<span>O</span></div>
+    <div class="login-sub">CONTROL DE GIMNASIO</div>
+    <div class="field" style="margin-top:24px;">
+      <label>Usuario</label>
+      <input type="text" id="loginUsuario" autocomplete="username" placeholder="Ej. admin">
+    </div>
+    <div class="field">
+      <label>Clave</label>
+      <input type="password" id="loginClave" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <div id="loginError" class="login-error"></div>
+    <button class="btn btn-lime" style="width:100%;justify-content:center;margin-top:6px;" onclick="intentarLogin()">Iniciar sesión</button>
+    <div class="login-hint">Usuario por defecto: <b>admin</b> / clave: <b>admin123</b> — cámbiala luego en Usuarios.</div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">PULS<span>O</span></div>
+    <div class="brand-sub">CONTROL DE GIMNASIO</div>
+  </div>
+  <nav class="nav" id="navList">
+    <button class="nav-item active" data-view="panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Panel</button>
+    <button class="nav-item" data-view="ventas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>Ventas</button>
+    <button class="nav-item" data-view="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Clientes</button>
+    <button class="nav-item" data-view="asistencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>Asistencia</button>
+    <button class="nav-item" data-view="caja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2H10a2 2 0 00-2 2v16"/></svg>Caja</button>
+    <button class="nav-item" data-view="planes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1"/></svg>Planes</button>
+    <button class="nav-item" data-view="reportes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Reportes</button>
+    <button class="nav-item" data-view="usuarios" data-admin-only="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M19 8l1.5 1.5L23 7"/></svg>Usuarios</button>
+  </nav>
+  <div class="nav-foot">
+    <div class="nav-user" id="navUser"></div>
+    <div id="fechaHoy">—</div>
+    <div class="caja-pill closed" id="cajaPill"><span class="dot"></span><span id="cajaPillText">Caja cerrada</span></div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ================= PANEL ================= -->
+  <section class="view active" id="view-panel">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Panel principal</div>
+        <div class="page-desc">Todo lo que usas a diario, a un clic de distancia.</div>
+      </div>
+    </div>
+
+    <div class="caja-summary stat-cards" id="panelStats"></div>
+
+    <div class="checkin-box">
+      <label>BUSCAR MIEMBRO — NOMBRE O CÉDULA</label>
+      <div class="checkin-row">
+        <input type="text" id="checkinInput" placeholder="Ej. María Pérez o V-12345678" autocomplete="off">
+        <button class="btn btn-lime" onclick="buscarMiembro()">Buscar</button>
+      </div>
+      <div id="checkinSuggest" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="status-card" id="statusCard"></div>
+
+    <div class="shortcut-grid">
+      <button class="shortcut-tile" onclick="document.querySelector('.nav-item[data-view=\'ventas\']').click()">
+        <div class="shortcut-icon">💳</div>
+        <div class="shortcut-title">Nueva venta</div>
+        <div class="shortcut-sub">Cobrar un plan o promoción</div>
+      </button>
+      <button class="shortcut-tile" onclick="abrirModalCliente()">
+        <div class="shortcut-icon">➕</div>
+        <div class="shortcut-title">Nuevo cliente</div>
+        <div class="shortcut-sub">Registrar un miembro nuevo</div>
+      </button>
+      <button class="shortcut-tile" onclick="document.querySelector('.nav-item[data-view=\'caja\']').click()">
+        <div class="shortcut-icon">🏦</div>
+        <div class="shortcut-title">Ir a Caja</div>
+        <div class="shortcut-sub">Abrir, cerrar o ver movimientos</div>
+      </button>
+      <button class="shortcut-tile" onclick="document.querySelector('.nav-item[data-view=\'clientes\']').click()">
+        <div class="shortcut-icon">👥</div>
+        <div class="shortcut-title">Ver clientes</div>
+        <div class="shortcut-sub">Buscar, editar o dar de baja</div>
+      </button>
+      <button class="shortcut-tile" onclick="document.querySelector('.nav-item[data-view=\'asistencia\']').click()">
+        <div class="shortcut-icon">📅</div>
+        <div class="shortcut-title">Asistencia</div>
+        <div class="shortcut-sub">Historial e inactivos</div>
+      </button>
+      <button class="shortcut-tile" onclick="document.querySelector('.nav-item[data-view=\'reportes\']').click()">
+        <div class="shortcut-icon">📊</div>
+        <div class="shortcut-title">Reportes</div>
+        <div class="shortcut-sub">Ingresos y estadísticas</div>
+      </button>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel-card">
+        <h3>Últimos ingresos hoy <span style="font-weight:400;color:var(--muted);font-size:12px;" id="ingresosCount"></span></h3>
+        <div id="listaIngresos"></div>
+      </div>
+      <div class="panel-card">
+        <h3>Por vencer (próximos 3 días)</h3>
+        <div id="listaPorVencer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VENTAS ================= -->
+  <section class="view" id="view-ventas">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Ventas</div>
+        <div class="page-desc">Selecciona un cliente, elige su plan o promoción y registra el pago.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>CLIENTE</label>
+      <select id="ventaCliente" onchange="onVentaClienteChange()"></select>
+    </div>
+    <div style="text-align:right;margin-top:-8px;margin-bottom:10px;">
+      <button class="btn-ghost btn btn-sm" onclick="abrirModalCliente()">+ Nuevo cliente</button>
+    </div>
+
+    <label style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.3px;">PLAN / PROMOCIÓN</label>
+    <div class="plan-grid" id="planGrid"></div>
+
+    <div class="venta-box" id="ventaBox" style="display:none;">
+      <div class="row2">
+        <div class="field">
+          <label>Tasa BCV (Bs por USD)</label>
+          <input type="number" id="tasaBcv" step="0.01" value="0" oninput="calcularVenta()">
+        </div>
+        <div class="field">
+          <label>Total a cobrar (USD)</label>
+          <input type="number" id="totalVentaUsd" step="0.01" oninput="calcularVenta()">
+        </div>
+      </div>
+
+      <label style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.3px;">MÉTODOS DE PAGO</label>
+      <div class="pay-methods">
+        <div class="pay-method">
+          <div class="pm-label">💵 Efectivo (USD)</div>
+          <input type="number" id="pagoEfectivoUsd" step="0.01" placeholder="0.00" oninput="calcularVenta()">
+        </div>
+        <div class="pay-method">
+          <div class="pm-label">💳 Tarjeta / Transf. (Bs)</div>
+          <input type="number" id="pagoTarjetaBs" step="0.01" placeholder="0.00" oninput="calcularVenta()">
+        </div>
+        <div class="pay-method">
+          <div class="pm-label">💲 Dólares en efectivo</div>
+          <input type="number" id="pagoDolares" step="0.01" placeholder="0.00" oninput="calcularVenta()">
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Referencia / nota de pago (opcional)</label>
+        <input type="text" id="ventaReferencia" placeholder="Nº de referencia, banco, etc.">
+      </div>
+
+      <div class="total-strip">
+        <div>
+          <div class="tl">TOTAL DEL PLAN</div>
+          <div class="tv" id="tvTotal">$0.00</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="tl">RECIBIDO</div>
+          <div class="tv" id="tvRecibido">$0.00</div>
+        </div>
+      </div>
+      <div class="diff-note" id="diffNote"></div>
+
+      <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-ghost" onclick="cancelarVenta()">Cancelar</button>
+        <button class="btn btn-lime" id="btnConfirmarVenta" onclick="confirmarVenta()">Confirmar venta y cobrar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLIENTES ================= -->
+  <section class="view" id="view-clientes">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Base de clientes</div>
+        <div class="page-desc">Todos los miembros registrados en el gimnasio.</div>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModalCliente()">+ Nuevo cliente</button>
+    </div>
+
+    <div class="searchbar">
+      <input type="text" id="clienteSearch" placeholder="Buscar por nombre o cédula..." oninput="renderClientes()">
+      <select id="clienteFiltro" onchange="renderClientes()">
+        <option value="todos">Todos los estados</option>
+        <option value="activo">Activos</option>
+        <option value="por_vencer">Por vencer</option>
+        <option value="vencido">Vencidos</option>
+        <option value="sin_plan">Sin plan</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Cédula</th><th>Plan actual</th><th>Vence</th><th>Estado</th><th>Teléfono</th><th></th></tr></thead>
+        <tbody id="clientesTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= ASISTENCIA ================= -->
+  <section class="view" id="view-asistencia">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Asistencia</div>
+        <div class="page-desc">Ingresos registrados y control de clientes inactivos.</div>
+      </div>
+    </div>
+
+    <div class="searchbar">
+      <button class="btn-ghost btn btn-sm" onclick="setRangoAsistencia('hoy')">Hoy</button>
+      <button class="btn-ghost btn btn-sm" onclick="setRangoAsistencia('semana')">Esta semana</button>
+      <button class="btn-ghost btn btn-sm" onclick="setRangoAsistencia('mes')">Este mes</button>
+      <input type="date" id="asisDesde" onchange="renderAsistencia()">
+      <input type="date" id="asisHasta" onchange="renderAsistencia()">
+      <input type="text" id="asisBusqueda" placeholder="Buscar cliente..." oninput="renderAsistencia()" style="flex:1;min-width:160px;">
+    </div>
+
+    <div class="caja-summary" id="asisStats"></div>
+
+    <div class="grid-2">
+      <div class="panel-card" style="grid-column:1/-1;">
+        <h3>Ingresos en el rango seleccionado <span style="font-weight:400;color:var(--muted);font-size:12px;" id="asisCount"></span></h3>
+        <div class="table-wrap" style="border:none;margin-top:6px;">
+          <table>
+            <thead><tr><th>Cliente</th><th>Cédula</th><th>Fecha</th><th>Hora</th><th></th></tr></thead>
+            <tbody id="asisTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="panel-card" style="grid-column:1/-1;">
+        <h3>Clientes con plan activo inactivos hace <span id="inactivoUmbralLabel">7</span>+ días
+          <span>
+            <select id="inactivoUmbral" onchange="renderAsistencia()" style="padding:6px 10px;border-radius:4px;border:1.5px solid var(--line);font-size:12px;">
+              <option value="3">3 días</option>
+              <option value="7" selected>7 días</option>
+              <option value="14">14 días</option>
+              <option value="30">30 días</option>
+            </select>
+          </span>
+        </h3>
+        <div id="inactivosLista"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CAJA ================= -->
+  <section class="view" id="view-caja">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Caja</div>
+        <div class="page-desc">Control de ingresos por efectivo, tarjeta y dólares del turno actual.</div>
+      </div>
+      <div id="cajaHeadBtns"></div>
+    </div>
+
+    <div id="cajaContent"></div>
+  </section>
+
+  <!-- ================= PLANES ================= -->
+  <section class="view" id="view-planes">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Planes y promociones</div>
+        <div class="page-desc">Administra los paquetes que se ofrecen en ventas.</div>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModalPlan()">+ Nuevo plan</button>
+    </div>
+    <div class="plan-grid" id="planesAdminGrid"></div>
+  </section>
+
+  <!-- ================= REPORTES ================= -->
+  <section class="view" id="view-reportes">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Reportes</div>
+        <div class="page-desc">Resumen general del gimnasio.</div>
+      </div>
+    </div>
+    <div class="caja-summary" id="reportCards"></div>
+    <div class="grid-2">
+      <div class="panel-card">
+        <h3>Ventas por plan (este mes)</h3>
+        <div id="reportPorPlan"></div>
+      </div>
+      <div class="panel-card">
+        <h3>Últimas ventas</h3>
+        <div id="reportUltimasVentas"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= USUARIOS ================= -->
+  <section class="view" id="view-usuarios">
+    <div class="page-head">
+      <div>
+        <div class="page-title">Usuarios</div>
+        <div class="page-desc">Quién puede entrar al sistema y con qué permisos.</div>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th></th></tr></thead>
+        <tbody id="usuariosTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ MODAL CLIENTE ============ -->
+<div class="overlay" id="modalCliente">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalClienteTitle">Nuevo cliente</h2>
+      <button class="modal-close" onclick="cerrarModal('modalCliente')">&times;</button>
+    </div>
+    <input type="hidden" id="clienteId">
+    <div class="row2">
+      <div class="field"><label>Nombre completo *</label><input type="text" id="clienteNombre"></div>
+      <div class="field"><label>Cédula / ID *</label><input type="text" id="clienteCedula"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Teléfono</label><input type="text" id="clienteTelefono"></div>
+      <div class="field"><label>Email</label><input type="email" id="clienteEmail"></div>
+    </div>
+    <div class="field"><label>Contacto de emergencia</label><input type="text" id="clienteEmergencia" placeholder="Nombre y teléfono"></div>
+    <div class="field"><label>Notas (condición médica, objetivo, etc.)</label><textarea id="clienteNotas" rows="2"></textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="cerrarModal('modalCliente')">Cancelar</button>
+      <button class="btn btn-lime" onclick="guardarCliente()">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL PLAN ============ -->
+<div class="overlay" id="modalPlan">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalPlanTitle">Nuevo plan</h2>
+      <button class="modal-close" onclick="cerrarModal('modalPlan')">&times;</button>
+    </div>
+    <input type="hidden" id="planId">
+    <div class="field"><label>Nombre del plan *</label><input type="text" id="planNombre" placeholder="Ej. Mensual Full, Promo Verano"></div>
+    <div class="row2">
+      <div class="field"><label>Duración (días) *</label><input type="number" id="planDuracion" placeholder="30"></div>
+      <div class="field"><label>Precio (USD) *</label><input type="number" id="planPrecio" step="0.01"></div>
+    </div>
+    <div class="field">
+      <label>Tipo</label>
+      <select id="planTipo">
+        <option value="plan">Plan regular</option>
+        <option value="promo">Promoción</option>
+      </select>
+    </div>
+    <div class="field"><label>Descripción breve</label><input type="text" id="planDescripcion" placeholder="Acceso completo, clases grupales, etc."></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="btnEliminarPlan" style="display:none;" onclick="eliminarPlan()">Eliminar</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-ghost" onclick="cerrarModal('modalPlan')">Cancelar</button>
+      <button class="btn btn-lime" onclick="guardarPlan()">Guardar plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL HISTORIAL DE ASISTENCIA ============ -->
+<div class="overlay" id="modalHistorial">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <h2 id="historialNombre">Historial</h2>
+      <button class="modal-close" onclick="cerrarModal('modalHistorial')">&times;</button>
+    </div>
+    <div class="status-detail" id="historialStats" style="margin-top:0;"></div>
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <button class="icon-btn" onclick="cambiarMesHistorial(-1)">‹</button>
+        <b id="historialMesLabel" style="font-size:13px;"></b>
+        <button class="icon-btn" onclick="cambiarMesHistorial(1)">›</button>
+      </div>
+      <div id="historialCalendario"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL USUARIO ============ -->
+<div class="overlay" id="modalUsuario">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <h2 id="modalUsuarioTitle">Nuevo usuario</h2>
+      <button class="modal-close" onclick="cerrarModal('modalUsuario')">&times;</button>
+    </div>
+    <input type="hidden" id="usuarioId">
+    <div class="field"><label>Nombre completo</label><input type="text" id="usuarioNombre"></div>
+    <div class="field"><label>Usuario (para iniciar sesión)</label><input type="text" id="usuarioLogin" autocomplete="off"></div>
+    <div class="field"><label id="usuarioClaveLabel">Clave</label><input type="password" id="usuarioClave" autocomplete="new-password" placeholder="Mínimo 4 caracteres"></div>
+    <div class="field">
+      <label>Rol</label>
+      <select id="usuarioRol">
+        <option value="admin">Administrador — acceso total</option>
+        <option value="recepcion">Recepción — sin Planes, Reportes ni Usuarios</option>
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="btnEliminarUsuario" style="display:none;" onclick="eliminarUsuario()">Eliminar</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-ghost" onclick="cerrarModal('modalUsuario')">Cancelar</button>
+      <button class="btn btn-lime" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL CONFIRMACIÓN GENÉRICA ============ -->
+<div class="overlay" id="modalConfirm">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-head">
+      <h2>Confirmar</h2>
+      <button class="modal-close" onclick="_confirmAnswer(false)">&times;</button>
+    </div>
+    <p id="confirmMsg" style="font-size:14px;line-height:1.55;color:var(--ink);"></p>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="_confirmAnswer(false)">Cancelar</button>
+      <button class="btn btn-lime" id="confirmOkBtn" onclick="_confirmAnswer(true)">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL ABRIR CAJA ============ -->
+<div class="overlay" id="modalAbrirCaja">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <h2>Abrir caja</h2>
+      <button class="modal-close" onclick="cerrarModal('modalAbrirCaja')">&times;</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Registra el monto en efectivo (USD) con el que arranca el turno.</p>
+    <div class="field"><label>Monto inicial (USD)</label><input type="number" id="aperturaMontoInicial" step="0.01" value="0"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="cerrarModal('modalAbrirCaja')">Cancelar</button>
+      <button class="btn btn-lime" onclick="confirmarAperturaCaja()">Abrir caja</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL INGRESO / RETIRO MANUAL ============ -->
+<div class="overlay" id="modalMovimiento">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-head">
+      <h2>Ingreso o retiro</h2>
+      <button class="modal-close" onclick="cerrarModal('modalMovimiento')">&times;</button>
+    </div>
+    <div class="field">
+      <label>Tipo de movimiento</label>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="btn btn-ghost btn-sm" id="movTipoIngreso" style="flex:1;" onclick="setMovTipo('ingreso')">+ Ingreso</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="movTipoEgreso" style="flex:1;" onclick="setMovTipo('egreso')">− Retiro</button>
+      </div>
+    </div>
+    <div class="field"><label>Descripción</label><input type="text" id="movDescripcion" placeholder="Ej. Compra de insumos, retiro de socio"></div>
+    <div class="row2">
+      <div class="field">
+        <label>Método</label>
+        <select id="movMetodo">
+          <option value="efectivo">Efectivo (USD)</option>
+          <option value="tarjeta">Tarjeta / Transf. (Bs)</option>
+          <option value="dolares">Dólares en efectivo</option>
+        </select>
+      </div>
+      <div class="field"><label>Monto</label><input type="number" id="movMonto" step="0.01" value="0"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="cerrarModal('modalMovimiento')">Cancelar</button>
+      <button class="btn btn-lime" onclick="confirmarMovimientoManual()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL RENOVAR RÁPIDO (desde panel) ============ -->
+<div class="overlay" id="modalCierreCaja">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Cerrar caja</h2>
+      <button class="modal-close" onclick="cerrarModal('modalCierreCaja')">&times;</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Cuenta el efectivo físico en caja y regístralo para calcular la diferencia con lo esperado.</p>
+    <div class="row2">
+      <div class="field"><label>Efectivo USD contado</label><input type="number" id="cierreEfectivoContado" step="0.01" value="0"></div>
+      <div class="field"><label>Dólares contados</label><input type="number" id="cierreDolaresContado" step="0.01" value="0"></div>
+    </div>
+    <div class="field"><label>Notas del cierre</label><textarea id="cierreNotas" rows="2"></textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="cerrarModal('modalCierreCaja')">Cancelar</button>
+      <button class="btn btn-lime" onclick="confirmarCierreCaja()">Cerrar caja</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastMsg"></span></div>
+</div>
+
+<script>
+/* ============================================================
+   DB — localStorage helpers
+============================================================ */
+const DB = {
+  get(key, def){ const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; },
+  set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+};
+const KEYS = { clientes:'pulso_clientes', planes:'pulso_planes', ventas:'pulso_ventas', checkins:'pulso_checkins', caja:'pulso_caja_sesiones', usuarios:'pulso_usuarios' };
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function hoyISO(){ return new Date().toISOString().slice(0,10); }
+/* Hash simple para no guardar claves en texto plano en localStorage.
+   No es criptografía real: al ser una app 100% del lado del cliente,
+   cualquiera con acceso al navegador podría llegar a la clave. Sirve
+   para evitar que se vea "a simple vista", no como blindaje absoluto. */
+function hashClave(str){
+  let h=5381;
+  const sal='pulso_gym_2026';
+  const s=sal+str;
+  for(let i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))|0; }
+  return (h>>>0).toString(36);
+}
+function fmtFechaLarga(d){
+  return new Date(d+'T00:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function fmtUsd(n){ return '$'+(Number(n)||0).toFixed(2); }
+function fmtBs(n){ return (Number(n)||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2})+' Bs'; }
+function diasEntre(a,b){ return Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000); }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* Modal de confirmación propio (reemplaza confirm()/prompt() nativos,
+   que pueden quedar bloqueados al ver el archivo dentro de un iframe). */
+let _confirmResolve=null;
+function showConfirm(mensaje, opts={}){
+  document.getElementById('confirmMsg').textContent=mensaje;
+  const btn=document.getElementById('confirmOkBtn');
+  btn.textContent = opts.okText || 'Confirmar';
+  document.getElementById('modalConfirm').classList.add('show');
+  return new Promise(resolve=>{ _confirmResolve=resolve; });
+}
+function _confirmAnswer(val){
+  document.getElementById('modalConfirm').classList.remove('show');
+  if(_confirmResolve){ _confirmResolve(val); _confirmResolve=null; }
+}
+
+/* ============================================================
+   SEED DATA
+============================================================ */
+function seed(){
+  if(!localStorage.getItem(KEYS.planes)){
+    DB.set(KEYS.planes,[
+      {id:uid(),nombre:'Pase Diario',duracionDias:1,precio:3,tipo:'plan',descripcion:'Acceso por un día'},
+      {id:uid(),nombre:'Mensual Estándar',duracionDias:30,precio:25,tipo:'plan',descripcion:'Acceso completo por 30 días'},
+      {id:uid(),nombre:'Trimestral',duracionDias:90,precio:65,tipo:'plan',descripcion:'3 meses de acceso, ahorra vs. mensual'},
+      {id:uid(),nombre:'Anual',duracionDias:365,precio:220,tipo:'plan',descripcion:'12 meses de acceso completo'},
+      {id:uid(),nombre:'Promo Pareja',duracionDias:30,precio:40,tipo:'promo',descripcion:'Mensual para 2 personas'},
+    ]);
+  }
+  if(!localStorage.getItem(KEYS.clientes)) DB.set(KEYS.clientes,[]);
+  if(!localStorage.getItem(KEYS.ventas)) DB.set(KEYS.ventas,[]);
+  if(!localStorage.getItem(KEYS.checkins)) DB.set(KEYS.checkins,[]);
+  if(!localStorage.getItem(KEYS.caja)) DB.set(KEYS.caja,[]);
+  if(!localStorage.getItem(KEYS.usuarios)){
+    DB.set(KEYS.usuarios,[
+      {id:uid(), nombre:'Administrador', usuario:'admin', claveHash:hashClave('admin123'), rol:'admin'}
+    ]);
+  }
+}
+seed();
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+document.getElementById('navList').addEventListener('click',e=>{
+  const btn=e.target.closest('.nav-item'); if(!btn) return;
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const view=btn.dataset.view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  if(view==='clientes') renderClientes();
+  if(view==='asistencia') renderAsistencia();
+  if(view==='ventas') renderVentasView();
+  if(view==='caja') renderCajaView();
+  if(view==='planes') renderPlanesAdmin();
+  if(view==='reportes') renderReportes();
+  if(view==='usuarios') renderUsuarios();
+  if(view==='panel') renderPanel();
+});
+
+document.getElementById('fechaHoy').textContent = fmtFechaLarga(hoyISO());
+
+/* ============================================================
+   ESTADO DEL CLIENTE (activo / por vencer / vencido / sin plan)
+============================================================ */
+function estadoCliente(c){
+  if(!c.fechaVencimiento) return {key:'sin_plan',label:'Sin plan',badge:'badge-none'};
+  const d = diasEntre(hoyISO(), c.fechaVencimiento);
+  if(d < 0) return {key:'vencido',label:`Vencido hace ${Math.abs(d)} día${Math.abs(d)==1?'':'s'}`,badge:'badge-bad',dias:d};
+  if(d <= 3) return {key:'por_vencer',label: d===0? 'Vence hoy' : `Vence en ${d} día${d==1?'':'s'}`,badge:'badge-warn',dias:d};
+  return {key:'activo',label:`Vence en ${d} días`,badge:'badge-ok',dias:d};
+}
+function planNombre(id){ const p=DB.get(KEYS.planes,[]).find(p=>p.id===id); return p?p.nombre:'—'; }
+
+/* ============================================================
+   PANEL — BÚSQUEDA / CHECK-IN
+============================================================ */
+const checkinInput=document.getElementById('checkinInput');
+checkinInput.addEventListener('keydown',e=>{ if(e.key==='Enter') buscarMiembro(); });
+checkinInput.addEventListener('input',()=>{
+  const q=checkinInput.value.trim().toLowerCase();
+  const sug=document.getElementById('checkinSuggest');
+  if(q.length<2){ sug.innerHTML=''; return; }
+  const clientes=DB.get(KEYS.clientes,[]);
+  const matches=clientes.filter(c=>c.nombre.toLowerCase().includes(q)||c.cedula.toLowerCase().includes(q)).slice(0,5);
+  sug.innerHTML = matches.map(c=>`<button class="btn-ghost btn btn-sm" style="margin:4px 6px 0 0;" onclick="seleccionarMiembro('${c.id}')">${c.nombre} · ${c.cedula}</button>`).join('');
+});
+
+function seleccionarMiembro(id){
+  const c=DB.get(KEYS.clientes,[]).find(x=>x.id===id);
+  if(c){ checkinInput.value=c.nombre; document.getElementById('checkinSuggest').innerHTML=''; mostrarEstadoCliente(c); }
+}
+
+function buscarMiembro(){
+  const q=checkinInput.value.trim().toLowerCase();
+  if(!q) return;
+  const clientes=DB.get(KEYS.clientes,[]);
+  const c=clientes.find(x=>x.cedula.toLowerCase()===q) || clientes.find(x=>x.nombre.toLowerCase()===q) || clientes.find(x=>x.nombre.toLowerCase().includes(q)||x.cedula.toLowerCase().includes(q));
+  if(!c){
+    showToast('No se encontró ningún cliente con ese dato');
+    const card=document.getElementById('statusCard');
+    card.classList.add('show');
+    card.innerHTML=`<div style="text-align:center;padding:10px;">
+      <div style="font-size:14px;margin-bottom:14px;">No hay ningún cliente registrado con "<b>${checkinInput.value}</b>".</div>
+      <button class="btn btn-lime" onclick="abrirModalCliente(); document.getElementById('clienteNombre').value=checkinInput.value;">+ Registrar como nuevo cliente</button>
+    </div>`;
+    return;
+  }
+  mostrarEstadoCliente(c);
+}
+
+function mostrarEstadoCliente(c){
+  const est=estadoCliente(c);
+  const card=document.getElementById('statusCard');
+  card.classList.add('show');
+  const ingresos=DB.get(KEYS.checkins,[]).filter(i=>i.clienteId===c.id);
+  const ultimoIngreso=ingresos.length?ingresos[ingresos.length-1].fecha:null;
+  card.innerHTML=`
+    <div class="status-top">
+      <div>
+        <div class="status-name">${c.nombre}</div>
+        <div class="status-meta">${c.cedula} ${c.telefono?(' · '+c.telefono):''}</div>
+      </div>
+      <span class="badge ${est.badge}">${est.label}</span>
+    </div>
+    <div class="status-detail">
+      <div class="status-stat"><div class="n">${c.planId?planNombre(c.planId):'—'}</div><div class="l">PLAN ACTUAL</div></div>
+      <div class="status-stat"><div class="n">${c.fechaVencimiento?new Date(c.fechaVencimiento+'T00:00:00').toLocaleDateString('es-ES'):'—'}</div><div class="l">VENCE</div></div>
+      <div class="status-stat"><div class="n">${ingresos.length}</div><div class="l">VISITAS TOTALES</div></div>
+      <div class="status-stat"><div class="n">${ultimoIngreso?new Date(ultimoIngreso).toLocaleDateString('es-ES'):'Primera vez'}</div><div class="l">ÚLTIMO INGRESO</div></div>
+    </div>
+    <div class="status-actions">
+      <button class="btn btn-lime" onclick="registrarIngreso('${c.id}')">✓ Registrar ingreso</button>
+      <button class="btn btn-primary" onclick="irARenovar('${c.id}')">Renovar / cobrar plan</button>
+      <button class="btn btn-ghost" onclick="editarCliente('${c.id}')">Editar ficha</button>
+      <button class="btn btn-ghost" onclick="abrirHistorialCliente('${c.id}')">Ver historial de asistencia</button>
+    </div>
+  `;
+}
+
+async function registrarIngreso(clienteId){
+  const c=DB.get(KEYS.clientes,[]).find(x=>x.id===clienteId);
+  const est=estadoCliente(c);
+  const checkins=DB.get(KEYS.checkins,[]);
+  const hoy=hoyISO();
+  const yaHoy=checkins.filter(i=>i.clienteId===clienteId && i.fecha.slice(0,10)===hoy);
+  if(yaHoy.length){
+    const hora=new Date(yaHoy[yaHoy.length-1].fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    const ok=await showConfirm(`${c.nombre} ya tiene un ingreso registrado hoy a las ${hora}. ¿Registrar otro ingreso de todas formas?`,{okText:'Registrar de todas formas'});
+    if(!ok) return;
+  }
+  if(est.key==='vencido' || est.key==='sin_plan'){
+    const ok=await showConfirm(`${c.nombre} ${est.key==='vencido'?'tiene el plan vencido':'no tiene un plan activo'}. ¿Registrar el ingreso de todas formas?`,{okText:'Registrar de todas formas'});
+    if(!ok) return;
+  }
+  checkins.push({id:uid(),clienteId,fecha:new Date().toISOString()});
+  DB.set(KEYS.checkins,checkins);
+  showToast(`Ingreso registrado — ${c.nombre}`);
+  renderPanel();
+  mostrarEstadoCliente(c);
+}
+
+function irARenovar(clienteId){
+  document.querySelector('.nav-item[data-view="ventas"]').click();
+  document.getElementById('ventaCliente').value=clienteId;
+  onVentaClienteChange();
+}
+
+function renderPanel(){
+  const hoy=hoyISO();
+  const checkins=DB.get(KEYS.checkins,[]).filter(i=>i.fecha.slice(0,10)===hoy).slice().reverse();
+  const clientes=DB.get(KEYS.clientes,[]);
+
+  // estadísticas rápidas
+  const activos=clientes.filter(c=>{ const e=estadoCliente(c).key; return e==='activo'||e==='por_vencer'; }).length;
+  const porVencerCount=clientes.filter(c=>estadoCliente(c).key==='por_vencer').length;
+  const sesion=obtenerSesionAbierta();
+  let cajaValor='Cerrada', cajaSub='Sin abrir hoy';
+  if(sesion){ const t=totalesSesion(sesion); cajaValor=fmtUsd(t.efectivo+t.dolares); cajaSub='Recaudado (USD) — turno abierto'; }
+  document.getElementById('panelStats').innerHTML=`
+    <div class="sum-card"><div class="sl">Ingresos hoy</div><div class="sv">${checkins.length}</div></div>
+    <div class="sum-card"><div class="sl">Miembros activos</div><div class="sv">${activos}</div></div>
+    <div class="sum-card"><div class="sl">Por vencer (3 días)</div><div class="sv">${porVencerCount}</div></div>
+    <div class="sum-card accent"><div class="sl">${cajaSub}</div><div class="sv">${cajaValor}</div></div>
+  `;
+
+  document.getElementById('ingresosCount').textContent = checkins.length? `(${checkins.length})` : '';
+  const listaIngresos=document.getElementById('listaIngresos');
+  listaIngresos.innerHTML = checkins.length? checkins.slice(0,8).map(i=>{
+    const c=clientes.find(x=>x.id===i.clienteId);
+    return `<div class="mini-row"><div><div class="mini-name">${c?c.nombre:'Cliente eliminado'}</div><div class="mini-sub">${new Date(i.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</div></div></div>`;
+  }).join('') : '<div class="empty-note">Aún no hay ingresos registrados hoy.</div>';
+
+  // por vencer
+  const porVencer=clientes.filter(c=>{ const e=estadoCliente(c); return e.key==='por_vencer'; }).sort((a,b)=>estadoCliente(a).dias-estadoCliente(b).dias);
+  const listaVencer=document.getElementById('listaPorVencer');
+  listaVencer.innerHTML = porVencer.length? porVencer.slice(0,8).map(c=>{
+    const e=estadoCliente(c);
+    return `<div class="mini-row"><div><div class="mini-name">${c.nombre}</div><div class="mini-sub">${planNombre(c.planId)}</div></div><span class="badge badge-warn" style="padding:4px 10px;font-size:11px;">${e.label}</span></div>`;
+  }).join('') : '<div class="empty-note">Nadie vence en los próximos 3 días.</div>';
+}
+renderPanel();
+
+/* ============================================================
+   CLIENTES — CRUD
+============================================================ */
+function abrirModalCliente(){
+  document.getElementById('modalClienteTitle').textContent='Nuevo cliente';
+  ['clienteId','clienteNombre','clienteCedula','clienteTelefono','clienteEmail','clienteEmergencia','clienteNotas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modalCliente').classList.add('show');
+}
+function editarCliente(id){
+  const c=DB.get(KEYS.clientes,[]).find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('modalClienteTitle').textContent='Editar cliente';
+  document.getElementById('clienteId').value=c.id;
+  document.getElementById('clienteNombre').value=c.nombre;
+  document.getElementById('clienteCedula').value=c.cedula;
+  document.getElementById('clienteTelefono').value=c.telefono||'';
+  document.getElementById('clienteEmail').value=c.email||'';
+  document.getElementById('clienteEmergencia').value=c.emergencia||'';
+  document.getElementById('clienteNotas').value=c.notas||'';
+  document.getElementById('modalCliente').classList.add('show');
+}
+function guardarCliente(){
+  const nombre=document.getElementById('clienteNombre').value.trim();
+  const cedula=document.getElementById('clienteCedula').value.trim();
+  if(!nombre||!cedula){ showToast('Nombre y cédula son obligatorios'); return; }
+  const clientes=DB.get(KEYS.clientes,[]);
+  const id=document.getElementById('clienteId').value;
+  const data={
+    nombre, cedula,
+    telefono:document.getElementById('clienteTelefono').value.trim(),
+    email:document.getElementById('clienteEmail').value.trim(),
+    emergencia:document.getElementById('clienteEmergencia').value.trim(),
+    notas:document.getElementById('clienteNotas').value.trim(),
+  };
+  if(id){
+    const idx=clientes.findIndex(c=>c.id===id);
+    clientes[idx]={...clientes[idx],...data};
+  } else {
+    if(clientes.some(c=>c.cedula===cedula)){ showToast('Ya existe un cliente con esa cédula'); return; }
+    clientes.push({id:uid(), fechaInscripcion:hoyISO(), planId:null, fechaInicio:null, fechaVencimiento:null, ...data});
+  }
+  DB.set(KEYS.clientes,clientes);
+  cerrarModal('modalCliente');
+  showToast('Cliente guardado');
+  renderClientes(); renderVentasView();
+}
+async function eliminarCliente(id){
+  const ok=await showConfirm('¿Eliminar este cliente y su historial? Esta acción no se puede deshacer.',{okText:'Eliminar'});
+  if(!ok) return;
+  DB.set(KEYS.clientes, DB.get(KEYS.clientes,[]).filter(c=>c.id!==id));
+  renderClientes();
+  showToast('Cliente eliminado');
+}
+function renderClientes(){
+  const q=(document.getElementById('clienteSearch').value||'').toLowerCase();
+  const filtro=document.getElementById('clienteFiltro').value;
+  let clientes=DB.get(KEYS.clientes,[]);
+  if(q) clientes=clientes.filter(c=>c.nombre.toLowerCase().includes(q)||c.cedula.toLowerCase().includes(q));
+  if(filtro!=='todos') clientes=clientes.filter(c=>estadoCliente(c).key===filtro);
+  const tbody=document.getElementById('clientesTbody');
+  if(!clientes.length){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-note">No hay clientes que coincidan.</div></td></tr>`; return; }
+  tbody.innerHTML=clientes.map(c=>{
+    const e=estadoCliente(c);
+    return `<tr class="tbl-row">
+      <td><b>${c.nombre}</b></td>
+      <td>${c.cedula}</td>
+      <td>${c.planId?planNombre(c.planId):'—'}</td>
+      <td>${c.fechaVencimiento?new Date(c.fechaVencimiento+'T00:00:00').toLocaleDateString('es-ES'):'—'}</td>
+      <td><span class="badge ${e.badge}" style="font-size:11px;padding:5px 10px;">${e.label}</span></td>
+      <td>${c.telefono||'—'}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="icon-btn" title="Editar" onclick="editarCliente('${c.id}')">✎</button>
+        <button class="icon-btn" title="Historial de asistencia" onclick="abrirHistorialCliente('${c.id}')">📅</button>
+        <button class="icon-btn" title="Eliminar" onclick="eliminarCliente('${c.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   PLANES — CRUD
+============================================================ */
+function abrirModalPlan(){
+  document.getElementById('modalPlanTitle').textContent='Nuevo plan';
+  ['planId','planNombre','planDuracion','planPrecio','planDescripcion'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('planTipo').value='plan';
+  document.getElementById('btnEliminarPlan').style.display='none';
+  document.getElementById('modalPlan').classList.add('show');
+}
+function editarPlan(id){
+  const p=DB.get(KEYS.planes,[]).find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('modalPlanTitle').textContent='Editar plan';
+  document.getElementById('planId').value=p.id;
+  document.getElementById('planNombre').value=p.nombre;
+  document.getElementById('planDuracion').value=p.duracionDias;
+  document.getElementById('planPrecio').value=p.precio;
+  document.getElementById('planTipo').value=p.tipo;
+  document.getElementById('planDescripcion').value=p.descripcion||'';
+  document.getElementById('btnEliminarPlan').style.display='inline-flex';
+  document.getElementById('modalPlan').classList.add('show');
+}
+function guardarPlan(){
+  const nombre=document.getElementById('planNombre').value.trim();
+  const duracion=Number(document.getElementById('planDuracion').value);
+  const precio=Number(document.getElementById('planPrecio').value);
+  if(!nombre||!duracion||precio<0||isNaN(precio)){ showToast('Completa nombre, duración y precio'); return; }
+  const planes=DB.get(KEYS.planes,[]);
+  const id=document.getElementById('planId').value;
+  const data={ nombre, duracionDias:duracion, precio, tipo:document.getElementById('planTipo').value, descripcion:document.getElementById('planDescripcion').value.trim() };
+  if(id){ const idx=planes.findIndex(p=>p.id===id); planes[idx]={...planes[idx],...data}; }
+  else planes.push({id:uid(),...data});
+  DB.set(KEYS.planes,planes);
+  cerrarModal('modalPlan');
+  showToast('Plan guardado');
+  renderPlanesAdmin(); renderVentasView();
+}
+async function eliminarPlan(){
+  const id=document.getElementById('planId').value;
+  if(!id) return;
+  const ok=await showConfirm('¿Eliminar este plan?',{okText:'Eliminar'});
+  if(!ok) return;
+  DB.set(KEYS.planes, DB.get(KEYS.planes,[]).filter(p=>p.id!==id));
+  cerrarModal('modalPlan');
+  renderPlanesAdmin(); renderVentasView();
+}
+function renderPlanesAdmin(){
+  const planes=DB.get(KEYS.planes,[]);
+  const grid=document.getElementById('planesAdminGrid');
+  grid.innerHTML = planes.map(p=>`
+    <div class="plan-card" onclick="editarPlan('${p.id}')">
+      ${p.tipo==='promo'?'<span class="tag">Promo</span>':''}
+      <div class="plan-name">${p.nombre}</div>
+      <div class="plan-dur">${p.duracionDias} día${p.duracionDias==1?'':'s'} · ${p.descripcion||'Sin descripción'}</div>
+      <div class="plan-price">${fmtUsd(p.precio)} <span>USD</span></div>
+    </div>
+  `).join('') || '<div class="empty-note">No hay planes creados.</div>';
+}
+
+/* ============================================================
+   VENTAS
+============================================================ */
+let ventaPlanSeleccionado=null;
+
+function renderVentasView(){
+  const clientes=DB.get(KEYS.clientes,[]);
+  const sel=document.getElementById('ventaCliente');
+  sel.innerHTML = '<option value="">— Selecciona un cliente —</option>' + clientes.map(c=>`<option value="${c.id}">${c.nombre} · ${c.cedula}</option>`).join('');
+  const planes=DB.get(KEYS.planes,[]);
+  const grid=document.getElementById('planGrid');
+  grid.innerHTML = planes.map(p=>`
+    <div class="plan-card" id="pc_${p.id}" onclick="seleccionarPlanVenta('${p.id}')">
+      ${p.tipo==='promo'?'<span class="tag">Promo</span>':''}
+      <div class="plan-name">${p.nombre}</div>
+      <div class="plan-dur">${p.duracionDias} día${p.duracionDias==1?'':'s'}</div>
+      <div class="plan-price">${fmtUsd(p.precio)} <span>USD</span></div>
+    </div>
+  `).join('') || '<div class="empty-note">Crea planes primero en la pestaña Planes.</div>';
+  // tasa BCV recordada
+  document.getElementById('tasaBcv').value = DB.get('pulso_tasa_bcv', 0);
+}
+function onVentaClienteChange(){ /* reserved for future per-client logic */ }
+
+function seleccionarPlanVenta(id){
+  ventaPlanSeleccionado=DB.get(KEYS.planes,[]).find(p=>p.id===id);
+  document.querySelectorAll('#planGrid .plan-card').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('pc_'+id).classList.add('selected');
+  document.getElementById('ventaBox').style.display='block';
+  document.getElementById('totalVentaUsd').value = ventaPlanSeleccionado.precio;
+  document.getElementById('pagoEfectivoUsd').value='';
+  document.getElementById('pagoTarjetaBs').value='';
+  document.getElementById('pagoDolares').value='';
+  document.getElementById('ventaReferencia').value='';
+  calcularVenta();
+  document.getElementById('ventaBox').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cancelarVenta(){
+  ventaPlanSeleccionado=null;
+  document.querySelectorAll('#planGrid .plan-card').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('ventaBox').style.display='none';
+}
+function calcularVenta(){
+  const total=Number(document.getElementById('totalVentaUsd').value)||0;
+  const tasa=Number(document.getElementById('tasaBcv').value)||0;
+  const efectivo=Number(document.getElementById('pagoEfectivoUsd').value)||0;
+  const tarjetaBs=Number(document.getElementById('pagoTarjetaBs').value)||0;
+  const dolares=Number(document.getElementById('pagoDolares').value)||0;
+  const tarjetaUsd = tasa>0 ? tarjetaBs/tasa : 0;
+  const recibidoUsd = efectivo+dolares+tarjetaUsd;
+  document.getElementById('tvTotal').textContent=fmtUsd(total);
+  document.getElementById('tvRecibido').textContent=fmtUsd(recibidoUsd);
+  const diff=recibidoUsd-total;
+  const note=document.getElementById('diffNote');
+  if(Math.abs(diff)<0.01){ note.className='diff-note diff-ok'; note.textContent='✓ El pago cuadra con el total del plan.'; }
+  else if(diff>0){ note.className='diff-note diff-ok'; note.textContent=`Vuelto a entregar: ${fmtUsd(diff)}`; }
+  else { note.className='diff-note diff-bad'; note.textContent=`Falta por cobrar: ${fmtUsd(Math.abs(diff))}`; }
+  document.getElementById('btnConfirmarVenta').disabled = (!document.getElementById('ventaCliente').value);
+}
+
+function confirmarVenta(){
+  const clienteId=document.getElementById('ventaCliente').value;
+  if(!clienteId){ showToast('Selecciona un cliente'); return; }
+  if(!ventaPlanSeleccionado){ showToast('Selecciona un plan'); return; }
+  const cajaAbierta=obtenerSesionAbierta();
+  if(!cajaAbierta){ showToast('Debes abrir la caja antes de cobrar'); document.querySelector('.nav-item[data-view="caja"]').click(); return; }
+
+  const total=Number(document.getElementById('totalVentaUsd').value)||0;
+  const tasa=Number(document.getElementById('tasaBcv').value)||0;
+  const efectivo=Number(document.getElementById('pagoEfectivoUsd').value)||0;
+  const tarjetaBs=Number(document.getElementById('pagoTarjetaBs').value)||0;
+  const dolares=Number(document.getElementById('pagoDolares').value)||0;
+  DB.set('pulso_tasa_bcv', tasa);
+
+  const venta={
+    id:uid(), clienteId, planId:ventaPlanSeleccionado.id, fecha:new Date().toISOString(),
+    total, tasaBcv:tasa, efectivoUsd:efectivo, tarjetaBs, dolares,
+    referencia:document.getElementById('ventaReferencia').value.trim()
+  };
+  const ventas=DB.get(KEYS.ventas,[]); ventas.push(venta); DB.set(KEYS.ventas,ventas);
+
+  // actualizar vencimiento del cliente
+  const clientes=DB.get(KEYS.clientes,[]);
+  const idx=clientes.findIndex(c=>c.id===clienteId);
+  const c=clientes[idx];
+  const est=estadoCliente(c);
+  const baseInicio = (est.key==='activo'||est.key==='por_vencer') ? c.fechaVencimiento : hoyISO();
+  const nuevoVencimiento = new Date(baseInicio+'T00:00:00');
+  nuevoVencimiento.setDate(nuevoVencimiento.getDate()+ventaPlanSeleccionado.duracionDias);
+  clientes[idx]={...c, planId:ventaPlanSeleccionado.id, fechaInicio: c.fechaVencimiento? c.fechaInicio : hoyISO(), fechaVencimiento: nuevoVencimiento.toISOString().slice(0,10)};
+  DB.set(KEYS.clientes,clientes);
+
+  // registrar movimientos en caja
+  registrarMovimientosCaja(venta, c.nombre);
+
+  showToast(`Venta registrada — ${c.nombre}`);
+  cancelarVenta();
+  renderVentasView();
+}
+
+/* ============================================================
+   CAJA
+============================================================ */
+function obtenerSesionAbierta(){
+  const sesiones=DB.get(KEYS.caja,[]);
+  return sesiones.find(s=>!s.cerrada);
+}
+function actualizarPillCaja(){
+  const s=obtenerSesionAbierta();
+  const pill=document.getElementById('cajaPill');
+  const text=document.getElementById('cajaPillText');
+  if(s){ pill.className='caja-pill open'; text.textContent='Caja abierta'; }
+  else { pill.className='caja-pill closed'; text.textContent='Caja cerrada'; }
+}
+actualizarPillCaja();
+
+function abrirCaja(){
+  document.getElementById('aperturaMontoInicial').value='0';
+  document.getElementById('modalAbrirCaja').classList.add('show');
+  setTimeout(()=>document.getElementById('aperturaMontoInicial').focus(),50);
+}
+function confirmarAperturaCaja(){
+  const monto=Number(document.getElementById('aperturaMontoInicial').value)||0;
+  const sesiones=DB.get(KEYS.caja,[]);
+  sesiones.push({id:uid(), fechaApertura:new Date().toISOString(), montoInicial:monto, movimientos:[], cerrada:false});
+  DB.set(KEYS.caja,sesiones);
+  cerrarModal('modalAbrirCaja');
+  showToast('Caja abierta');
+  actualizarPillCaja(); renderCajaView();
+}
+function registrarMovimientosCaja(venta,nombreCliente){
+  const sesiones=DB.get(KEYS.caja,[]);
+  const s=sesiones.find(x=>!x.cerrada);
+  if(!s) return;
+  if(venta.efectivoUsd>0) s.movimientos.push({id:uid(),tipo:'venta',metodo:'efectivo',monto:venta.efectivoUsd,fecha:venta.fecha,descripcion:`Plan — ${nombreCliente}`});
+  if(venta.tarjetaBs>0) s.movimientos.push({id:uid(),tipo:'venta',metodo:'tarjeta',monto:venta.tarjetaBs,fecha:venta.fecha,descripcion:`Plan — ${nombreCliente}`,ref:venta.referencia});
+  if(venta.dolares>0) s.movimientos.push({id:uid(),tipo:'venta',metodo:'dolares',monto:venta.dolares,fecha:venta.fecha,descripcion:`Plan — ${nombreCliente}`});
+  DB.set(KEYS.caja,sesiones);
+}
+let movTipoActual='ingreso';
+function setMovTipo(t){
+  movTipoActual=t;
+  document.getElementById('movTipoIngreso').className='btn btn-sm '+(t==='ingreso'?'btn-lime':'btn-ghost');
+  document.getElementById('movTipoEgreso').className='btn btn-sm '+(t==='egreso'?'btn-lime':'btn-ghost');
+}
+function registrarMovimientoManual(){
+  document.getElementById('movDescripcion').value='';
+  document.getElementById('movMetodo').value='efectivo';
+  document.getElementById('movMonto').value='0';
+  setMovTipo('ingreso');
+  document.getElementById('modalMovimiento').classList.add('show');
+  setTimeout(()=>document.getElementById('movDescripcion').focus(),50);
+}
+function confirmarMovimientoManual(){
+  const desc=document.getElementById('movDescripcion').value.trim();
+  if(!desc){ showToast('Escribe una descripción'); return; }
+  const metodo=document.getElementById('movMetodo').value;
+  const monto=Number(document.getElementById('movMonto').value)||0;
+  if(monto<=0){ showToast('Ingresa un monto válido'); return; }
+  const sesiones=DB.get(KEYS.caja,[]);
+  const s=sesiones.find(x=>!x.cerrada); if(!s) return;
+  s.movimientos.push({id:uid(),tipo:movTipoActual, metodo, monto: movTipoActual==='egreso'? -Math.abs(monto): Math.abs(monto), fecha:new Date().toISOString(), descripcion:desc});
+  DB.set(KEYS.caja,sesiones);
+  cerrarModal('modalMovimiento');
+  showToast('Movimiento registrado');
+  renderCajaView();
+}
+
+function totalesSesion(s){
+  const t={efectivo:0,tarjeta:0,dolares:0};
+  s.movimientos.forEach(m=>{ t[m.metodo]+=m.monto; });
+  return t;
+}
+
+function renderCajaView(){
+  actualizarPillCaja();
+  const s=obtenerSesionAbierta();
+  const headBtns=document.getElementById('cajaHeadBtns');
+  headBtns.innerHTML='';
+  const content=document.getElementById('cajaContent');
+
+  if(!s){
+    content.innerHTML=`<div class="closed-box">
+      <h3>La caja está cerrada</h3>
+      <p>Ábrela para empezar a registrar los pagos en efectivo, tarjeta y dólares del día.</p>
+      <button class="btn btn-lime" onclick="abrirCaja()">Abrir caja</button>
+    </div>`;
+    return;
+  }
+
+  const t=totalesSesion(s);
+  const totalMovs=s.movimientos.length;
+  const efectivoEnCaja = t.efectivo + s.montoInicial;
+
+  content.innerHTML=`
+    <div class="caja-hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-label">Total recaudado — turno actual</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-ghost btn-sm" style="background:rgba(255,255,255,.08);color:#fff;border-color:transparent;" onclick="registrarMovimientoManual()">+ Ingreso / retiro</button>
+          <button class="btn btn-lime btn-sm" onclick="document.getElementById('modalCierreCaja').classList.add('show')">Cerrar caja</button>
+        </div>
+      </div>
+      <div class="hero-main">
+        <div class="hero-figure">
+          <span class="hf-num">${fmtUsd(t.efectivo+t.dolares)}</span><span class="hf-cur">USD en efectivo/dólares</span>
+        </div>
+        <div class="hero-figure secondary">
+          <div class="hf-label">MÁS EN TARJETA / TRANSFERENCIA</div>
+          <span class="hf-num">${fmtBs(t.tarjeta)}</span>
+        </div>
+      </div>
+      <div class="hero-chips">
+        <div class="chip">💵 Efectivo <b>${fmtUsd(t.efectivo)}</b></div>
+        <div class="chip">💲 Dólares <b>${fmtUsd(t.dolares)}</b></div>
+        <div class="chip">💳 Tarjeta/Transf. <b>${fmtBs(t.tarjeta)}</b></div>
+        <div class="chip">🏦 Fondo inicial <b>${fmtUsd(s.montoInicial)}</b></div>
+        <div class="chip strong">🧮 Efectivo esperado en caja <b>${fmtUsd(efectivoEnCaja)}</b></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="movtable">
+        <thead><tr><th>Hora</th><th>Descripción</th><th>Método</th><th>Monto</th></tr></thead>
+        <tbody>
+        ${totalMovs? s.movimientos.slice().reverse().map(m=>`
+          <tr class="tbl-row">
+            <td>${new Date(m.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</td>
+            <td>${m.descripcion}</td>
+            <td><span class="tag-metodo ${m.tipo==='egreso'?'tag-egreso':'tag-'+m.metodo}">${m.metodo}</span></td>
+            <td style="font-weight:700;">${m.metodo==='tarjeta'?fmtBs(m.monto):fmtUsd(m.monto)}</td>
+          </tr>`).join('') : `<tr><td colspan="4"><div class="empty-note">Aún no hay movimientos en esta caja. Las ventas que cobres aparecerán aquí automáticamente.</div></td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function confirmarCierreCaja(){
+  const s=obtenerSesionAbierta();
+  if(!s) return;
+  const t=totalesSesion(s);
+  const efectivoContado=Number(document.getElementById('cierreEfectivoContado').value)||0;
+  const dolaresContado=Number(document.getElementById('cierreDolaresContado').value)||0;
+  const esperadoEfectivo = t.efectivo + s.montoInicial;
+  s.cerrada=true;
+  s.fechaCierre=new Date().toISOString();
+  s.conteo={ efectivoContado, dolaresContado };
+  s.esperado={ efectivo:esperadoEfectivo, dolares:t.dolares, tarjeta:t.tarjeta };
+  s.diferencia={ efectivo: efectivoContado-esperadoEfectivo, dolares: dolaresContado-t.dolares };
+  s.notasCierre=document.getElementById('cierreNotas').value.trim();
+  const sesiones=DB.get(KEYS.caja,[]);
+  const idx=sesiones.findIndex(x=>x.id===s.id);
+  sesiones[idx]=s;
+  DB.set(KEYS.caja,sesiones);
+  cerrarModal('modalCierreCaja');
+  document.getElementById('cierreEfectivoContado').value=0;
+  document.getElementById('cierreDolaresContado').value=0;
+  document.getElementById('cierreNotas').value='';
+  showToast(`Caja cerrada. Diferencia efectivo: ${fmtUsd(s.diferencia.efectivo)}`);
+  actualizarPillCaja(); renderCajaView();
+}
+
+/* ============================================================
+   REPORTES
+============================================================ */
+function renderReportes(){
+  const clientes=DB.get(KEYS.clientes,[]);
+  const ventas=DB.get(KEYS.ventas,[]);
+  const mesActual=hoyISO().slice(0,7);
+  const ventasMes=ventas.filter(v=>v.fecha.slice(0,7)===mesActual);
+  const ingresosMes=ventasMes.reduce((a,v)=>a+v.total,0);
+  const activos=clientes.filter(c=>estadoCliente(c).key==='activo'||estadoCliente(c).key==='por_vencer').length;
+  const vencidos=clientes.filter(c=>estadoCliente(c).key==='vencido').length;
+
+  document.getElementById('reportCards').innerHTML=`
+    <div class="sum-card accent"><div class="sl">Ingresos del mes</div><div class="sv">${fmtUsd(ingresosMes)}</div></div>
+    <div class="sum-card"><div class="sl">Clientes totales</div><div class="sv">${clientes.length}</div></div>
+    <div class="sum-card"><div class="sl">Membresías activas</div><div class="sv">${activos}</div></div>
+    <div class="sum-card"><div class="sl">Membresías vencidas</div><div class="sv">${vencidos}</div></div>
+  `;
+
+  const porPlan={};
+  ventasMes.forEach(v=>{ const n=planNombre(v.planId); porPlan[n]=(porPlan[n]||0)+1; });
+  const entradas=Object.entries(porPlan).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('reportPorPlan').innerHTML = entradas.length? entradas.map(([n,c])=>`<div class="mini-row"><span class="mini-name">${n}</span><span>${c} venta${c==1?'':'s'}</span></div>`).join('') : '<div class="empty-note">Sin ventas este mes todavía.</div>';
+
+  const ultimas=ventas.slice().reverse().slice(0,8);
+  document.getElementById('reportUltimasVentas').innerHTML = ultimas.length? ultimas.map(v=>{
+    const c=clientes.find(x=>x.id===v.clienteId);
+    return `<div class="mini-row"><div><div class="mini-name">${c?c.nombre:'—'}</div><div class="mini-sub">${planNombre(v.planId)}</div></div><span>${fmtUsd(v.total)}</span></div>`;
+  }).join('') : '<div class="empty-note">Sin ventas registradas.</div>';
+}
+
+/* ============================================================
+   ASISTENCIA
+============================================================ */
+function setRangoAsistencia(tipo){
+  const hoy=hoyISO();
+  let desde=hoy, hasta=hoy;
+  if(tipo==='semana'){
+    const d=new Date(); const dow=(d.getDay()+6)%7; // lunes=0
+    const lunes=new Date(d); lunes.setDate(d.getDate()-dow);
+    desde=lunes.toISOString().slice(0,10);
+  } else if(tipo==='mes'){
+    desde=hoy.slice(0,7)+'-01';
+  }
+  document.getElementById('asisDesde').value=desde;
+  document.getElementById('asisHasta').value=hasta;
+  renderAsistencia();
+}
+
+function renderAsistencia(){
+  const clientes=DB.get(KEYS.clientes,[]);
+  const checkins=DB.get(KEYS.checkins,[]);
+  const desdeEl=document.getElementById('asisDesde'), hastaEl=document.getElementById('asisHasta');
+  if(!desdeEl.value){ desdeEl.value=hoyISO(); hastaEl.value=hoyISO(); }
+  const desde=desdeEl.value, hasta=hastaEl.value;
+  const q=(document.getElementById('asisBusqueda').value||'').toLowerCase();
+
+  let enRango=checkins.filter(i=>{ const f=i.fecha.slice(0,10); return f>=desde && f<=hasta; });
+  if(q) enRango=enRango.filter(i=>{ const c=clientes.find(x=>x.id===i.clienteId); return c && (c.nombre.toLowerCase().includes(q)||c.cedula.toLowerCase().includes(q)); });
+  enRango=enRango.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+
+  const diasRango=Math.max(1, diasEntre(desde,hasta)+1);
+  const unicos=new Set(enRango.map(i=>i.clienteId)).size;
+  const promedio = (enRango.length/diasRango).toFixed(1);
+
+  document.getElementById('asisStats').innerHTML=`
+    <div class="sum-card accent"><div class="sl">Ingresos en el rango</div><div class="sv">${enRango.length}</div></div>
+    <div class="sum-card"><div class="sl">Miembros únicos</div><div class="sv">${unicos}</div></div>
+    <div class="sum-card"><div class="sl">Promedio diario</div><div class="sv">${promedio}</div></div>
+    <div class="sum-card"><div class="sl">Clientes registrados</div><div class="sv">${clientes.length}</div></div>
+  `;
+  document.getElementById('asisCount').textContent = `(${enRango.length})`;
+
+  const tbody=document.getElementById('asisTbody');
+  tbody.innerHTML = enRango.length? enRango.slice(0,150).map(i=>{
+    const c=clientes.find(x=>x.id===i.clienteId);
+    return `<tr class="tbl-row">
+      <td><b>${c?c.nombre:'Cliente eliminado'}</b></td>
+      <td>${c?c.cedula:'—'}</td>
+      <td>${new Date(i.fecha).toLocaleDateString('es-ES')}</td>
+      <td>${new Date(i.fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="text-align:right;">${c?`<button class="icon-btn" title="Ver historial" onclick="abrirHistorialCliente('${c.id}')">📅</button>`:''}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="5"><div class="empty-note">No hay ingresos en el rango seleccionado.</div></td></tr>`;
+
+  // clientes inactivos
+  const umbral=Number(document.getElementById('inactivoUmbral').value);
+  document.getElementById('inactivoUmbralLabel').textContent=umbral;
+  const inactivos=clientes.filter(c=>{
+    const est=estadoCliente(c);
+    if(est.key!=='activo' && est.key!=='por_vencer') return false;
+    const misCheckins=checkins.filter(i=>i.clienteId===c.id);
+    if(!misCheckins.length) return true;
+    const ultimo=misCheckins.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha))[0].fecha.slice(0,10);
+    return diasEntre(ultimo,hoyISO())>=umbral;
+  }).sort((a,b)=>{
+    const ua=checkins.filter(i=>i.clienteId===a.id).slice().sort((x,y)=>y.fecha.localeCompare(x.fecha))[0];
+    const ub=checkins.filter(i=>i.clienteId===b.id).slice().sort((x,y)=>y.fecha.localeCompare(x.fecha))[0];
+    return (ua?ua.fecha:'').localeCompare(ub?ub.fecha:'');
+  });
+  const lista=document.getElementById('inactivosLista');
+  lista.innerHTML = inactivos.length? inactivos.map(c=>{
+    const misCheckins=checkins.filter(i=>i.clienteId===c.id).slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const ultimo=misCheckins.length? misCheckins[0].fecha.slice(0,10) : null;
+    const texto = ultimo? `Hace ${diasEntre(ultimo,hoyISO())} días (${new Date(ultimo+'T00:00:00').toLocaleDateString('es-ES')})` : 'Nunca ha asistido';
+    return `<div class="mini-row"><div><div class="mini-name">${c.nombre}</div><div class="mini-sub">${planNombre(c.planId)}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="badge badge-warn" style="font-size:11px;padding:5px 10px;">${texto}</span>
+        <button class="icon-btn" title="Ver historial" onclick="abrirHistorialCliente('${c.id}')">📅</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-note">No hay clientes activos inactivos por encima de ese umbral. 👏</div>';
+}
+
+/* ---- Historial / calendario por cliente ---- */
+let historialClienteId=null, historialMesRef=null;
+
+function abrirHistorialCliente(clienteId){
+  const c=DB.get(KEYS.clientes,[]).find(x=>x.id===clienteId);
+  if(!c) return;
+  historialClienteId=clienteId;
+  historialMesRef=new Date();
+  document.getElementById('historialNombre').textContent=`Historial — ${c.nombre}`;
+  renderHistorialStats(c);
+  renderHistorialCalendario();
+  document.getElementById('modalHistorial').classList.add('show');
+}
+
+function renderHistorialStats(c){
+  const checkins=DB.get(KEYS.checkins,[]).filter(i=>i.clienteId===c.id).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const total=checkins.length;
+  const mesActual=hoyISO().slice(0,7);
+  const esteMes=checkins.filter(i=>i.fecha.slice(0,7)===mesActual).length;
+  const ultimo=total? checkins[checkins.length-1].fecha.slice(0,10) : null;
+
+  // racha de días consecutivos con asistencia, terminando hoy o ayer
+  let racha=0;
+  if(total){
+    const diasUnicos=[...new Set(checkins.map(i=>i.fecha.slice(0,10)))].sort();
+    const setDias=new Set(diasUnicos);
+    let cursor = setDias.has(hoyISO()) ? hoyISO() : (()=>{ const y=new Date(); y.setDate(y.getDate()-1); return y.toISOString().slice(0,10); })();
+    if(setDias.has(cursor)){
+      while(setDias.has(cursor)){
+        racha++;
+        const d=new Date(cursor+'T00:00:00'); d.setDate(d.getDate()-1);
+        cursor=d.toISOString().slice(0,10);
+      }
+    }
+  }
+
+  document.getElementById('historialStats').innerHTML=`
+    <div class="status-stat"><div class="n">${total}</div><div class="l">VISITAS TOTALES</div></div>
+    <div class="status-stat"><div class="n">${esteMes}</div><div class="l">ESTE MES</div></div>
+    <div class="status-stat"><div class="n">${racha}</div><div class="l">RACHA ACTUAL (DÍAS)</div></div>
+    <div class="status-stat"><div class="n">${ultimo?new Date(ultimo+'T00:00:00').toLocaleDateString('es-ES'):'—'}</div><div class="l">ÚLTIMA VISITA</div></div>
+  `;
+}
+
+function cambiarMesHistorial(delta){
+  historialMesRef.setMonth(historialMesRef.getMonth()+delta);
+  renderHistorialCalendario();
+}
+
+function renderHistorialCalendario(){
+  const checkins=DB.get(KEYS.checkins,[]).filter(i=>i.clienteId===historialClienteId);
+  const diasConAsistencia=new Set(checkins.map(i=>i.fecha.slice(0,10)));
+  const year=historialMesRef.getFullYear(), month=historialMesRef.getMonth();
+  document.getElementById('historialMesLabel').textContent=historialMesRef.toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+
+  const primerDia=new Date(year,month,1);
+  const offset=(primerDia.getDay()+6)%7; // lunes=0
+  const diasEnMes=new Date(year,month+1,0).getDate();
+  const dows=['L','M','X','J','V','S','D'];
+  let html='<div class="cal-grid">'+dows.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<offset;i++) html+='<div class="cal-day empty"></div>';
+  for(let day=1; day<=diasEnMes; day++){
+    const iso=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const presente=diasConAsistencia.has(iso);
+    const esHoy=iso===hoyISO();
+    html+=`<div class="cal-day ${presente?'present':''} ${esHoy?'today':''}">${day}</div>`;
+  }
+  html+='</div>';
+  document.getElementById('historialCalendario').innerHTML=html;
+}
+
+
+function cerrarModal(id){ document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('show'); });
+});
+
+/* ============================================================
+   AUTENTICACIÓN Y USUARIOS
+============================================================ */
+function usuarioActual(){
+  const raw=sessionStorage.getItem('pulso_sesion');
+  return raw? JSON.parse(raw) : null;
+}
+function intentarLogin(){
+  const usuario=document.getElementById('loginUsuario').value.trim().toLowerCase();
+  const clave=document.getElementById('loginClave').value;
+  const err=document.getElementById('loginError');
+  err.textContent='';
+  if(!usuario||!clave){ err.textContent='Completa usuario y clave.'; return; }
+  const u=DB.get(KEYS.usuarios,[]).find(x=>x.usuario.toLowerCase()===usuario);
+  if(!u || u.claveHash!==hashClave(clave)){ err.textContent='Usuario o clave incorrectos.'; return; }
+  sessionStorage.setItem('pulso_sesion', JSON.stringify({id:u.id, nombre:u.nombre, usuario:u.usuario, rol:u.rol}));
+  if(window._pulsoLogEvent) window._pulsoLogEvent('login', {rol:u.rol});
+  document.getElementById('loginClave').value='';
+  iniciarApp();
+}
+function cerrarSesion(){
+  sessionStorage.removeItem('pulso_sesion');
+  document.getElementById('loginUsuario').value='';
+  document.getElementById('loginClave').value='';
+  document.getElementById('loginError').textContent='';
+  iniciarApp();
+}
+function aplicarPermisosRol(rol){
+  document.querySelectorAll('[data-admin-only]').forEach(el=>{ el.style.display = rol==='admin' ? '' : 'none'; });
+  ['planes','reportes'].forEach(v=>{
+    const el=document.querySelector(`.nav-item[data-view="${v}"]`);
+    if(el) el.style.display = rol==='admin' ? '' : 'none';
+  });
+}
+function renderNavUser(u){
+  document.getElementById('navUser').innerHTML=`
+    <div class="nu-info">
+      <div class="nu-name">${u.nombre}</div>
+      <div class="nu-role">${u.rol==='admin'?'Administrador':'Recepción'}</div>
+    </div>
+    <button title="Cerrar sesión" onclick="cerrarSesion()">⏻</button>
+  `;
+}
+function iniciarApp(){
+  const u=usuarioActual();
+  const login=document.getElementById('loginScreen'), root=document.getElementById('appRoot');
+  if(!u){ login.style.display='flex'; root.style.display='none'; setTimeout(()=>document.getElementById('loginUsuario').focus(),50); return; }
+  login.style.display='none';
+  root.style.display='flex';
+  aplicarPermisosRol(u.rol);
+  renderNavUser(u);
+  const activo=document.querySelector('.nav-item.active');
+  if(activo && activo.style.display==='none'){
+    document.querySelector('.nav-item[data-view="panel"]').click();
+  }
+}
+document.getElementById('loginUsuario').addEventListener('keydown', e=>{ if(e.key==='Enter') intentarLogin(); });
+document.getElementById('loginClave').addEventListener('keydown', e=>{ if(e.key==='Enter') intentarLogin(); });
+
+function abrirModalUsuario(){
+  document.getElementById('modalUsuarioTitle').textContent='Nuevo usuario';
+  ['usuarioId','usuarioNombre','usuarioLogin','usuarioClave'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('usuarioRol').value='recepcion';
+  document.getElementById('usuarioClaveLabel').textContent='Clave';
+  document.getElementById('usuarioClave').placeholder='Mínimo 4 caracteres';
+  document.getElementById('btnEliminarUsuario').style.display='none';
+  document.getElementById('modalUsuario').classList.add('show');
+}
+function editarUsuario(id){
+  const u=DB.get(KEYS.usuarios,[]).find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('modalUsuarioTitle').textContent='Editar usuario';
+  document.getElementById('usuarioId').value=u.id;
+  document.getElementById('usuarioNombre').value=u.nombre;
+  document.getElementById('usuarioLogin').value=u.usuario;
+  document.getElementById('usuarioClave').value='';
+  document.getElementById('usuarioClaveLabel').textContent='Nueva clave (déjalo vacío para no cambiarla)';
+  document.getElementById('usuarioClave').placeholder='••••••••';
+  document.getElementById('usuarioRol').value=u.rol;
+  const esUnicoAdmin = u.rol==='admin' && DB.get(KEYS.usuarios,[]).filter(x=>x.rol==='admin').length<=1;
+  document.getElementById('btnEliminarUsuario').style.display = esUnicoAdmin? 'none':'inline-flex';
+  document.getElementById('modalUsuario').classList.add('show');
+}
+function guardarUsuario(){
+  const nombre=document.getElementById('usuarioNombre').value.trim();
+  const login=document.getElementById('usuarioLogin').value.trim().toLowerCase();
+  const clave=document.getElementById('usuarioClave').value;
+  const rol=document.getElementById('usuarioRol').value;
+  const id=document.getElementById('usuarioId').value;
+  if(!nombre||!login){ showToast('Completa nombre y usuario'); return; }
+  const usuarios=DB.get(KEYS.usuarios,[]);
+  if(usuarios.some(u=>u.usuario.toLowerCase()===login && u.id!==id)){ showToast('Ese nombre de usuario ya existe'); return; }
+  if(id){
+    const idx=usuarios.findIndex(u=>u.id===id);
+    if(clave){
+      if(clave.length<4){ showToast('La clave debe tener al menos 4 caracteres'); return; }
+      usuarios[idx].claveHash=hashClave(clave);
+    }
+    usuarios[idx]={...usuarios[idx], nombre, usuario:login, rol};
+  } else {
+    if(!clave || clave.length<4){ showToast('La clave debe tener al menos 4 caracteres'); return; }
+    usuarios.push({id:uid(), nombre, usuario:login, claveHash:hashClave(clave), rol});
+  }
+  DB.set(KEYS.usuarios,usuarios);
+  cerrarModal('modalUsuario');
+  showToast('Usuario guardado');
+  renderUsuarios();
+  const actual=usuarioActual();
+  if(actual && actual.id===id){ renderNavUser({...actual, nombre, rol}); }
+}
+async function eliminarUsuario(){
+  const id=document.getElementById('usuarioId').value;
+  if(!id) return;
+  const actual=usuarioActual();
+  if(actual && actual.id===id){ showToast('No puedes eliminar tu propio usuario mientras tienes la sesión abierta'); return; }
+  const ok=await showConfirm('¿Eliminar este usuario? Ya no podrá iniciar sesión.',{okText:'Eliminar'});
+  if(!ok) return;
+  DB.set(KEYS.usuarios, DB.get(KEYS.usuarios,[]).filter(u=>u.id!==id));
+  cerrarModal('modalUsuario');
+  renderUsuarios();
+  showToast('Usuario eliminado');
+}
+function renderUsuarios(){
+  const usuarios=DB.get(KEYS.usuarios,[]);
+  const tbody=document.getElementById('usuariosTbody');
+  tbody.innerHTML = usuarios.map(u=>`
+    <tr class="tbl-row">
+      <td><b>${u.nombre}</b></td>
+      <td>${u.usuario}</td>
+      <td><span class="badge ${u.rol==='admin'?'badge-ok':'badge-none'}" style="font-size:11px;padding:5px 10px;">${u.rol==='admin'?'Administrador':'Recepción'}</span></td>
+      <td style="text-align:right;"><button class="icon-btn" title="Editar" onclick="editarUsuario('${u.id}')">✎</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="4"><div class="empty-note">No hay usuarios.</div></td></tr>';
+}
+
+/* init */
+renderVentasView();
+iniciarApp();
+</script>
+</body>
+</html>
